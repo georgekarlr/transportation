@@ -1,0 +1,6 @@
+{
+  "name": "Roadwise Best Route Navigator",
+  "description": "Google Maps-style best route finder with multi-mode navigation, alternative routes, turn-by-turn guidance, live simulation, and ride options.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

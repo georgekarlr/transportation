@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roadwise Best Route Navigator</title>
+    <meta name="description" content="Google Maps-style best route finder with multi-mode navigation, alternative routes, turn-by-turn guidance, live simulation, and ride options." />
+    <meta property="og:title" content="Roadwise Best Route Navigator" />
+    <meta property="og:description" content="Google Maps-style best route finder with multi-mode navigation, alternative routes, turn-by-turn guidance, live simulation, and ride options." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="/src/index.css" />
+  </head>
+  <body>
+    <div id="app-container">
+      <!-- Fullscreen Leaflet Map -->
+      <div id="map-viewport"></div>
+
+      <!-- Floating Sidebar / Bottom Sheet -->
+      <aside id="sidebar-panel">
+        <!-- Top App Brand Header -->
+        <header class="brand-bar">
+          <div class="brand-title">
+            <span>📍</span>
+            <span>Roadwise Navigator</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="city-pill-btn" class="city-pill" title="Current Service Area">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Pagadian City</span>
+            </button>
+            <button id="app-help-btn" class="icon-btn-subtle" title="User Manual & Help">
+              📖 Guide
+            </button>
+          </div>
+        </header>
+
+        <!-- Route Finder Panel Content -->
+        <main class="panel-content">
+          <div id="route-finder-section">
+            <!-- Search inputs -->
+            <div class="search-container">
+              <!-- Origin row -->
+              <div class="search-field-row" id="origin-search-row">
+                <span class="field-icon">🟢</span>
+                <input
+                  id="origin-input"
+                  class="search-input"
+                  type="text"
+                  placeholder="Starting point"
+                  value="My Location (Pagadian City)"
+                  autocomplete="off"
+                />
+                <button id="origin-gps-btn" class="icon-btn-subtle" title="Use current GPS position">
+                  🎯 GPS
+                </button>
+              </div>
+
+              <!-- Divider with Swap Button -->
+              <div class="field-divider">
+                <button id="swap-locations-btn" class="swap-btn" title="Swap origin and destination">
+                  ⇅
+                </button>
+              </div>
+
+              <!-- Destination row -->
+              <div class="search-field-row" id="dest-search-row">
+                <span class="field-icon">🔴</span>
+                <input
+                  id="dest-input"
+                  class="search-input"
+                  type="text"
+                  placeholder="Where to? (e.g. Airport, Market)"
+                  autocomplete="off"
+                />
+                <button id="clear-dest-btn" class="icon-btn-subtle hidden" title="Clear destination">
+                  ✕
+                </button>
+              </div>
+
+              <!-- Live Autocomplete Results -->
+              <div id="dest-autocomplete" class="autocomplete-dropdown hidden"></div>
+            </div>
+
+            <!-- Travel Mode Selector Tabs -->
+            <div class="mode-tabs mt-3" id="travel-mode-tabs">
+              <button class="mode-tab active" data-mode="driving" title="Driving">
+                <span>🚗</span> Drive
+              </button>
+              <button class="mode-tab" data-mode="motorcycle" title="Motorcycle / Habal-habal">
+                <span>🏍️</span> Moto
+              </button>
+              <button class="mode-tab" data-mode="cab" title="Cab / Taxi">
+                <span>🚕</span> Cab
+              </button>
+              <button class="mode-tab" data-mode="bike" title="Bicycle">
+                <span>🚲</span> Bike
+              </button>
+              <button class="mode-tab" data-mode="walk" title="Walking">
+                <span>🚶</span> Walk
+              </button>
+            </div>
+
+            <!-- Quick Preset Destination Chips -->
+            <div class="mt-3">
+              <div class="preset-section-title">Quick Destinations</div>
+              <div class="chips-scroll" id="preset-chips-container">
+                <!-- Dynamically populated chips -->
+              </div>
+            </div>
+
+            <!-- Route Calculation Loading State -->
+            <div id="routes-loading" class="hidden p-4 text-center text-sm text-slate-400">
+              <div class="inline-block animate-spin mr-2">🧭</div> Calculating best road routes...
+            </div>
+
+            <!-- Calculated Routes List (Fastest vs Alternative) -->
+            <div class="routes-container mt-3" id="routes-list-container">
+              <!-- Route cards rendered here -->
+            </div>
+
+            <!-- Action Buttons Row (Nav, Steps, Book) -->
+            <div id="route-actions-section" class="hidden mt-3 flex flex-col gap-2">
+              <div class="action-btn-row">
+                <button id="start-nav-btn" class="btn-primary">
+                  <span>🧭</span> Start Navigation
+                </button>
+                <button id="toggle-steps-btn" class="btn-secondary">
+                  📋 View Steps
+                </button>
+              </div>
+              <button id="book-ride-btn" class="btn-secondary w-full border-emerald-600/50 hover:bg-emerald-950/40 text-emerald-300">
+                <span>🚕</span> Book Ride for this Route
+              </button>
+            </div>
+
+            <!-- Turn-by-Turn Directions Container -->
+            <div id="directions-section" class="hidden mt-3 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+              <div id="directions-container"></div>
+            </div>
+          </div>
+
+          <!-- Ride Booking Panel (Preserved & Enhanced) -->
+          <div id="ride-booking-panel" class="hidden flex flex-col gap-3">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+              <div>
+                <span class="text-xs text-slate-400 font-semibold uppercase">Destination</span>
+                <h3 id="ride-dest-name" class="text-base font-bold text-slate-100">Airport</h3>
+              </div>
+              <button id="back-to-routes-btn" class="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-800 rounded">
+                ← Back
+              </button>
+            </div>
+
+            <!-- Choice State -->
+            <div id="ride-choice-substate">
+              <p class="text-xs text-slate-400 mb-2">Select your vehicle type:</p>
+              
+              <div class="ride-item" id="choose-motor-ride">
+                <div class="ride-item-left">
+                  <div class="ride-item-icon">🏍️</div>
+                  <div>
+                    <div class="ride-item-title">Motorcycle</div>
+                    <div class="ride-item-sub">Habal-habal &bull; 1 seat &bull; Fastest</div>
+                  </div>
+                </div>
+                <div class="ride-item-price" id="ride-motor-price">₱50</div>
+              </div>
+
+              <div class="ride-item" id="choose-cab-ride">
+                <div class="ride-item-left">
+                  <div class="ride-item-icon">🚕</div>
+                  <div>
+                    <div class="ride-item-title">Cab / Taxi</div>
+                    <div class="ride-item-sub">Sedan &bull; Air-conditioned &bull; Up to 4 seats</div>
+                  </div>
+                </div>
+                <div class="ride-item-price" id="ride-cab-price">₱100</div>
+              </div>
+
+              <button id="cancel-ride-btn" class="btn-secondary w-full mt-2 text-rose-300 border-rose-900/40 bg-rose-950/20 hover:bg-rose-950/50">
+                Cancel
+              </button>
+            </div>
+
+            <!-- Waiting for Driver State -->
+            <div id="ride-waiting-substate" class="hidden text-center py-6">
+              <div class="inline-block animate-spin text-3xl mb-3">📡</div>
+              <h3 class="text-base font-bold text-slate-100 mb-1">Finding your nearby driver...</h3>
+              <p class="text-xs text-slate-400 mb-4">Broadcasting route to available drivers in Pagadian City</p>
+              <button id="cancel-waiting-btn" class="btn-secondary w-full text-rose-300">
+                Cancel Ride
+              </button>
+            </div>
+
+            <!-- Active Dispatched Trip State -->
+            <div id="ride-trip-substate" class="hidden flex flex-col gap-3">
+              <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                <div class="flex items-center justify-between mb-1">
+                  <h4 id="trip-driver-name" class="font-bold text-emerald-400">🚗 Driver Assigned</h4>
+                  <span id="trip-eta-badge" class="text-xs bg-emerald-950 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full font-bold">10 min</span>
+                </div>
+                <div id="trip-driver-vehicle" class="text-xs text-slate-300">Toyota Vios &bull; NAE-4912</div>
+                <div id="trip-driver-rating" class="text-xs text-amber-300 mt-1">4.9 ⭐ (890 trips)</div>
+              </div>
+
+              <div class="text-xs text-slate-400 font-semibold uppercase mt-1">Report road incident on route:</div>
+              <div class="grid grid-cols-3 gap-2">
+                <button id="trip-report-traffic" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-amber-300 flex flex-col items-center gap-1">
+                  <span>🚦</span> Traffic
+                </button>
+                <button id="trip-report-crash" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-rose-400 flex flex-col items-center gap-1">
+                  <span>🚨</span> Crash
+                </button>
+                <button id="trip-report-hazard" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-yellow-300 flex flex-col items-center gap-1">
+                  <span>⚠️</span> Hazard
+                </button>
+              </div>
+
+              <button id="end-trip-btn" class="btn-secondary w-full mt-2 text-rose-300 border-rose-800/40 bg-rose-950/30 hover:bg-rose-950/60">
+                End Trip
+              </button>
+            </div>
+          </div>
+        </main>
+      </aside>
+
+      <!-- Floating Map Control Buttons (Top-Right) -->
+      <nav class="floating-map-controls" aria-label="Map Tools">
+        <button id="map-locate-btn" class="map-control-btn" title="Locate My Position">
+          🎯
+        </button>
+        <button id="map-pin-btn" class="map-control-btn" title="Click Map to Set Destination">
+          📍
+        </button>
+        <button id="map-report-btn" class="map-control-btn" title="Report Road Incident">
+          ⚠️
+        </button>
+
+        <!-- Base Map Switcher Buttons -->
+        <div class="flex flex-col gap-1 mt-2 bg-slate-900/90 p-1 rounded-xl border border-slate-700">
+          <button id="tile-streets-btn" class="tile-switcher-btn active px-2 py-1 text-xs rounded text-slate-300 hover:text-white" title="Street View">
+            🗺️ Street
+          </button>
+          <button id="tile-sat-btn" class="tile-switcher-btn px-2 py-1 text-xs rounded text-slate-300 hover:text-white" title="Satellite Imagery">
+            🛰️ Sat
+          </button>
+          <button id="tile-dark-btn" class="tile-switcher-btn px-2 py-1 text-xs rounded text-slate-300 hover:text-white" title="Dark Carto Map">
+            🌙 Dark
+          </button>
+        </div>
+      </nav>
+
+      <!-- Active Turn-by-Turn Navigation HUD (Google Maps Style Top Banner) -->
+      <header id="nav-hud-top" class="hidden">
+        <div class="nav-maneuver-icon" id="nav-hud-icon">➡️</div>
+        <div class="nav-instruction-text">
+          <div class="nav-distance" id="nav-hud-distance">In 200m</div>
+          <div class="nav-action" id="nav-hud-action">Turn right onto Sanson Street</div>
+        </div>
+      </header>
+
+      <!-- Active Turn-by-Turn Navigation HUD (Bottom Status & Controls) -->
+      <footer id="nav-hud-bottom" class="hidden">
+        <div class="nav-stats-row">
+          <div class="nav-stat-item">
+            <span class="nav-stat-value" id="nav-time-value">8 min</span>
+            <span class="nav-stat-label">REMAINING</span>
+          </div>
+          <div class="nav-stat-item">
+            <span class="nav-stat-value" id="nav-dist-value">3.2 km</span>
+            <span class="nav-stat-label">DISTANCE</span>
+          </div>
+          <div class="nav-stat-item">
+            <span class="nav-stat-value text-emerald-400" id="nav-speed-value">42 km/h</span>
+            <span class="nav-stat-label">SPEED</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="nav-progress-bar">
+          <div class="nav-progress-fill" id="nav-progress-fill"></div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="nav-ctrl-row">
+          <div class="flex gap-2">
+            <button id="pause-nav-btn" class="btn-secondary text-xs px-3 py-1.5">
+              ⏸️ Pause
+            </button>
+            <button id="speed-nav-btn" class="btn-secondary text-xs px-3 py-1.5 font-bold" title="Simulation Speed">
+              1x
+            </button>
+          </div>
+          <button id="stop-nav-btn" class="btn-secondary text-xs px-3 py-1.5 text-rose-300 border-rose-800/50 hover:bg-rose-950/40">
+            ✕ Exit Navigation
+          </button>
+        </div>
+      </footer>
+
+      <!-- Incident Report Modal -->
+      <div id="incident-modal" class="modal-overlay hidden" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Report Road Incident</h3>
+            <button id="close-incident-modal-btn" onclick="document.getElementById('incident-modal').style.display='none'; document.getElementById('incident-modal').classList.add('hidden');" class="icon-btn-subtle text-lg">✕</button>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">
+            Help other travelers in Pagadian City by reporting real-time hazards, traffic jams, and crashes on the road.
+          </p>
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <button class="incident-type-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left flex items-center gap-3" data-type="traffic">
+              <span class="text-2xl">🚦</span>
+              <div>
+                <div class="text-sm font-bold text-amber-300">Traffic Jam</div>
+                <div class="text-xs text-slate-400">Heavy congestion</div>
+              </div>
+            </button>
+            <button class="incident-type-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left flex items-center gap-3" data-type="crash">
+              <span class="text-2xl">🚨</span>
+              <div>
+                <div class="text-sm font-bold text-rose-400">Car Accident</div>
+                <div class="text-xs text-slate-400">Road blocked</div>
+              </div>
+            </button>
+            <button class="incident-type-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left flex items-center gap-3" data-type="hazard">
+              <span class="text-2xl">⚠️</span>
+              <div>
+                <div class="text-sm font-bold text-yellow-300">Road Hazard</div>
+                <div class="text-xs text-slate-400">Pothole / debris</div>
+              </div>
+            </button>
+            <button class="incident-type-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left flex items-center gap-3" data-type="camera">
+              <span class="text-2xl">📷</span>
+              <div>
+                <div class="text-sm font-bold text-blue-400">Speed Check</div>
+                <div class="text-xs text-slate-400">Police checkpoint</div>
+              </div>
+            </button>
+            <button class="incident-type-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-left flex items-center gap-3 col-span-2" data-type="closure">
+              <span class="text-2xl">🚧</span>
+              <div>
+                <div class="text-sm font-bold text-orange-400">Roadwork / Closure</div>
+                <div class="text-xs text-slate-400">Construction or diversion</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Manual Modal -->
+      <div id="manual-modal" class="modal-overlay hidden" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="manual-modal-title">
+        <div class="modal-content" id="manual-modal-dialog">
+          <div class="modal-header">
+            <h3 class="modal-title" id="manual-modal-title">📖 Roadwise User Manual</h3>
+            <button id="close-manual-modal-btn" onclick="document.getElementById('manual-modal').style.display='none'; document.getElementById('manual-modal').classList.add('hidden');" class="icon-btn-subtle text-lg p-2" title="Close manual (Esc)">✕</button>
+          </div>
+          <div class="text-xs text-slate-300 flex flex-col gap-3">
+            <section>
+              <h4 class="font-bold text-emerald-400 text-sm mb-1">1. Finding the Best Route</h4>
+              <p>Type your destination in the search bar (with live autocomplete powered by OpenStreetMap Nominatim), or tap any of the Quick Destination chips (Airport, Market, Hospital, Mall, etc.). You can also click the 📍 pin button and click anywhere on the map to set a target point.</p>
+            </section>
+            <section>
+              <h4 class="font-bold text-emerald-400 text-sm mb-1">2. Comparing Alternative Routes</h4>
+              <p>Roadwise calculates both the Primary Fastest Route and Alternative Routes (via bypass or coastal highways). Click on any route card or polyline on the map to inspect its distance, estimated travel duration, and traffic congestion level.</p>
+            </section>
+            <section>
+              <h4 class="font-bold text-emerald-400 text-sm mb-1">3. Travel Modes</h4>
+              <p>Switch between Driving (🚗), Motorcycle / Habal-habal (🏍️), Cab / Taxi (🚕), Bicycle (🚲), and Walking (🚶) to recalculate the optimal route geometry, travel speeds, and estimated transport fares.</p>
+            </section>
+            <section>
+              <h4 class="font-bold text-emerald-400 text-sm mb-1">4. Live Navigation Simulation</h4>
+              <p>Tap <strong>Start Navigation</strong> to launch Google Maps-style live turn-by-turn guidance with animated vehicle tracking along the route, upcoming maneuver banners, real-time speedometers, progress bars, and 1x/2x/4x simulation speed options.</p>
+            </section>
+            <section>
+              <h4 class="font-bold text-emerald-400 text-sm mb-1">5. Booking Rides & Reporting Hazards</h4>
+              <p>Choose <strong>Book Ride</strong> to request a Motorcycle (Habal-habal) or Cab with estimated metered fares and live driver dispatch. While on a trip, report traffic jams, accidents, and road hazards with a single tap to alert other motorists.</p>
+            </section>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-700/80 flex justify-end">
+            <button id="got-it-manual-modal-btn" onclick="document.getElementById('manual-modal').style.display='none'; document.getElementById('manual-modal').classList.add('hidden');" class="btn-primary py-2 px-5 text-xs">
+              ✓ Got It, Close Guide
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Container -->
+      <div id="toast-container" aria-live="polite"></div>
+    </div>
+
+    <!-- Application Script Entry Point -->
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
