@@ -118,3 +118,13 @@ The application is built 100% in pure vanilla HTML5, CSS3, and modern modular Ja
 - `/src/components/turnDirections.js`: Turn-by-turn maneuver list and step highlight interactions.
 - `/src/components/rideManager.js`: Ride dispatch lifecycle, driver pool, and fare calculators.
 - `/src/app.js`: Root controller binding DOM elements, state transitions, and responsive events.
+
+---
+
+## 9. Running Locally
+
+For complete step-by-step instructions on running Roadwise on your personal computer (with or without Node.js), please refer to [`LOCAL_SETUP.md`](./LOCAL_SETUP.md).
+
+Quick options:
+- **Without Node.js**: VS Code Live Server or Python HTTP server (`python3 -m http.server 8000`).
+- **With Node.js**: Run `npm install` and `npm run dev` to launch on `http://localhost:3000`.
