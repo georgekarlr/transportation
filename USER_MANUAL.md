@@ -128,3 +128,22 @@ For complete step-by-step instructions on running Roadwise on your personal comp
 Quick options:
 - **Without Node.js**: VS Code Live Server or Python HTTP server (`python3 -m http.server 8000`).
 - **With Node.js**: Run `npm install` and `npm run dev` to launch on `http://localhost:3000`.
+
+---
+
+## 10. Building & Deploying for Production
+
+For production bundling, minification, Docker containerization, and static hosting on Vercel, Netlify, GitHub Pages, or Nginx, refer to [`BUILD.md`](./BUILD.md).
+
+Quick build command:
+```bash
+npm install
+npm run build
+```
+Generates a production-ready static bundle in the `dist/` directory.
+
+---
+
+## 11. Engineering Story & How It Was Created
+
+To understand how the application was planned, architected, and built from scratch (including the mathematical formulas for bearing, haversine distance, and coordinate interpolation), refer to [`HOW_IT_WAS_CREATED.md`](./HOW_IT_WAS_CREATED.md).
