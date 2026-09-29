@@ -11,6 +11,7 @@ import { navigationSimulator } from './services/simulator.js';
 import { MapComponent } from './components/mapComponent.js';
 import { TurnDirectionsComponent } from './components/turnDirections.js';
 import { RideManager } from './components/rideManager.js';
+import { PRESENTATION_DOCX_BASE64 } from './assets/presentationDocxBase64.js';
 
 class RoadwiseApp {
   constructor() {
@@ -774,6 +775,61 @@ class RoadwiseApp {
     document.getElementById('got-it-manual-modal-btn')?.addEventListener('click', () => {
       this.closeManualModal();
     });
+
+    // In-memory 100% Client-Side DOCX Download (avoids iframe security cookie interception)
+    const downloadDocxBtn = document.getElementById('download-presentation-btn');
+    if (downloadDocxBtn) {
+      downloadDocxBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          const binaryString = atob(PRESENTATION_DOCX_BASE64);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'Roadwise_Navigator_Presentation_Build_Guide.docx';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 1000);
+          this.showToast('Word presentation (.docx) downloaded successfully!', 'success');
+        } catch (err) {
+          console.error('Error in client-side docx download:', err);
+          this.showToast('Failed to generate docx in browser.', 'info');
+        }
+      });
+    }
+
+    // Copy Presentation Text to Clipboard
+    const copyPresentationBtn = document.getElementById('copy-presentation-btn');
+    if (copyPresentationBtn) {
+      copyPresentationBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          const res = await fetch('/PRESENTATION_HOW_TO_BUILD.md');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const text = await res.text();
+          await navigator.clipboard.writeText(text);
+          this.showToast('Presentation text copied to clipboard!', 'success');
+        } catch (err) {
+          console.warn('Clipboard fetch error:', err);
+          // Fallback direct summary copy
+          const fallback = '# Presentation Guide: How to Build Roadwise Navigator Step-by-Step\nSee PRESENTATION_HOW_TO_BUILD.md in repository root.';
+          await navigator.clipboard.writeText(fallback);
+          this.showToast('Copied presentation guide link!', 'success');
+        }
+      });
+    }
 
     // Close on backdrop overlay click
     const manualModal = document.getElementById('manual-modal');

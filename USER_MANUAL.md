@@ -147,3 +147,13 @@ Generates a production-ready static bundle in the `dist/` directory.
 ## 11. Engineering Story & How It Was Created
 
 To understand how the application was planned, architected, and built from scratch (including the mathematical formulas for bearing, haversine distance, and coordinate interpolation), refer to [`HOW_IT_WAS_CREATED.md`](./HOW_IT_WAS_CREATED.md).
+
+---
+
+## 12. Presentation & Walkthrough Guide
+
+To present or teach how this application was built step-by-step (with slide-by-slide breakdowns, speaker notes, architecture diagrams, and a live demonstration script), refer to [`PRESENTATION_HOW_TO_BUILD.md`](./PRESENTATION_HOW_TO_BUILD.md).
+
+A formatted **Microsoft Word document (.docx)** version is also available:
+- File: [`Roadwise_Navigator_Presentation_Build_Guide.docx`](./Roadwise_Navigator_Presentation_Build_Guide.docx)
+- Or click **📥 Download Presentation (.docx)** inside the web app's User Manual dialog.
