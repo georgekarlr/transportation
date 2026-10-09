@@ -17,7 +17,10 @@
 * **Deployment Status:** Active & Continuous Deployment (CI/CD via Git Push)
 * **SSL / HTTPS Status:** Enforced TLS 1.3 (Netlify Managed Let's Encrypt Certificate)
 * **Capstone Deployment Report:** [`CAPSTONE_DEPLOYMENT_SUBMISSION.md`](./CAPSTONE_DEPLOYMENT_SUBMISSION.md)
+* **Capstone Word Report (.docx):** [`Roadwise_Capstone_Deployment_Report.docx`](./Roadwise_Capstone_Deployment_Report.docx)
 * **Presentation & Workshop Guide:** [`PRESENTATION_HOW_TO_BUILD.md`](./PRESENTATION_HOW_TO_BUILD.md)
+* **Presentation Word Doc (.docx):** [`Roadwise_Navigator_Presentation_Build_Guide.docx`](./Roadwise_Navigator_Presentation_Build_Guide.docx)
+* **README Word Doc (.docx):** [`Roadwise_README_Documentation.docx`](./Roadwise_README_Documentation.docx)
 * **User Manual:** [`USER_MANUAL.md`](./USER_MANUAL.md)
 
 ---
@@ -177,6 +180,17 @@ This repository is configured for zero-configuration Netlify deployments via `ne
    git push origin main
    ```
 2. Netlify automatically runs `npm run build`, publishes `dist/`, and applies enterprise security headers and SPA routing.
+
+### Generating Word Reports (.docx):
+To regenerate the Capstone Deployment Report, Presentation Guide, and System README in Microsoft Word format:
+```bash
+npm run generate:docx
+# Generates:
+# - Roadwise_Capstone_Deployment_Report.docx
+# - Roadwise_Navigator_Presentation_Build_Guide.docx
+# - Roadwise_README_Documentation.docx
+```
+*(All 3 files can also be downloaded directly from the web app's User Manual dialog in 1 click).*
 
 ---
 

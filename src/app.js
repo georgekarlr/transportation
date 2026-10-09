@@ -12,6 +12,8 @@ import { MapComponent } from './components/mapComponent.js';
 import { TurnDirectionsComponent } from './components/turnDirections.js';
 import { RideManager } from './components/rideManager.js';
 import { PRESENTATION_DOCX_BASE64 } from './assets/presentationDocxBase64.js';
+import { CAPSTONE_DOCX_BASE64 } from './assets/capstoneDocxBase64.js';
+import { README_DOCX_BASE64 } from './assets/readmeDocxBase64.js';
 
 class RoadwiseApp {
   constructor() {
@@ -806,6 +808,74 @@ class RoadwiseApp {
         } catch (err) {
           console.error('Error in client-side docx download:', err);
           this.showToast('Failed to generate docx in browser.', 'info');
+        }
+      });
+    }
+
+    // In-memory 100% Client-Side Capstone Report DOCX Download
+    const downloadCapstoneBtn = document.getElementById('download-capstone-btn');
+    if (downloadCapstoneBtn) {
+      downloadCapstoneBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          const binaryString = atob(CAPSTONE_DOCX_BASE64);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'Roadwise_Capstone_Deployment_Report.docx';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 1000);
+          this.showToast('Capstone Report (.docx) downloaded successfully!', 'success');
+        } catch (err) {
+          console.error('Error in client-side capstone docx download:', err);
+          this.showToast('Failed to generate report docx in browser.', 'info');
+        }
+      });
+    }
+
+    // In-memory 100% Client-Side README Documentation DOCX Download
+    const downloadReadmeBtn = document.getElementById('download-readme-btn');
+    if (downloadReadmeBtn) {
+      downloadReadmeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          const binaryString = atob(README_DOCX_BASE64);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'Roadwise_README_Documentation.docx';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 1000);
+          this.showToast('README Documentation (.docx) downloaded successfully!', 'success');
+        } catch (err) {
+          console.error('Error in client-side README docx download:', err);
+          this.showToast('Failed to generate README docx in browser.', 'info');
         }
       });
     }

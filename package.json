@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "generate:docx": "node scripts/generate_docx.js"
+    "generate:docx": "node scripts/generate_docx.js && node scripts/generate_capstone_docx.js && node scripts/generate_readme_docx.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

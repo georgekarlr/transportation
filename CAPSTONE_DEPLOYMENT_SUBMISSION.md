@@ -4,6 +4,7 @@
 **Component:** Capstone Project – Deployment & Publishing (25% of final grade)  
 **Project Title:** Roadwise Navigator (Pagadian City Smart GIS Navigation & Ride-Hailing Platform)  
 **Target Grade:** 100 / 100 Points (Excellent – Grade A)  
+**Exportable Word Report (.docx):** Available as [`Roadwise_Capstone_Deployment_Report.docx`](./Roadwise_Capstone_Deployment_Report.docx) (or downloadable directly from the web app)
 
 ---
 
@@ -18,8 +19,9 @@ Use this document as your **final deployment submission report** and **oral defe
 | **3. Hosting Platform** | ✅ Deployed | **Netlify Global High-Performance Edge CDN** |
 | **4. Build & Publish Settings**| ✅ Verified | Build: `npm run build` \| Publish Directory: `dist` \| Config: `netlify.toml` |
 | **5. Git Repository Link** | ✅ Ready | `https://github.com/your-username/roadwise-navigator` |
-| **6. Evaluator Demo Access** | ✅ Ready | Role: Evaluator / Demo Guest (Pre-seeded with active data & incident pool) |
-| **7. SSL / TLS Grade** | ✅ Grade A+ | Netlify Managed Let's Encrypt / TLS 1.3 Strict HTTPS Enforced |
+| **6. Formatted Word Report** | ✅ Ready | [`Roadwise_Capstone_Deployment_Report.docx`](./Roadwise_Capstone_Deployment_Report.docx) |
+| **7. Evaluator Demo Access** | ✅ Ready | Role: Evaluator / Demo Guest (Pre-seeded with active data & incident pool) |
+| **8. SSL / TLS Grade** | ✅ Grade A+ | Netlify Managed Let's Encrypt / TLS 1.3 Strict HTTPS Enforced |
 
 ---
 
