@@ -157,3 +157,9 @@ To present or teach how this application was built step-by-step (with slide-by-s
 A formatted **Microsoft Word document (.docx)** version is also available:
 - File: [`Roadwise_Navigator_Presentation_Build_Guide.docx`](./Roadwise_Navigator_Presentation_Build_Guide.docx)
 - Or click **📥 Download Presentation (.docx)** inside the web app's User Manual dialog.
+
+---
+
+## 13. Capstone Project Rubric & Deployment Report (100/100 Guide)
+
+For academic evaluation, capstone defense, and deployment grading (Domain registration, DNS records, SSL enforcement, Nginx/Vercel configs, Lighthouse performance audits, evaluator credentials, and defense Q&A), refer to [`CAPSTONE_DEPLOYMENT_SUBMISSION.md`](./CAPSTONE_DEPLOYMENT_SUBMISSION.md).
